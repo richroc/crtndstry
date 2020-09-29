@@ -42,9 +42,9 @@ certdata(){
 rootdomains() { #this creates a list of all unique root sub domains
         clear
         echo "working on data"
-	cat rawdata/crtsh1.txt | rev | cut -d "."  -f 1,2,3 | sort -u | rev | tee ./$1-temp.txt
-        cat rawdata/crtsh.txt | rev | cut -d "."  -f 1,2,3 | sort -u | rev | tee ./$1-temp.txt
-        cat rawdata/certspotter.txt | rev | cut -d "."  -f 1,2,3 | sort -u | rev | tee -a ./$1-temp.txt
+	cat rawdata/$1-crtsh1.txt | rev | cut -d "."  -f 1,2,3 | sort -u | rev | tee ./$1-temp.txt
+        cat rawdata/$1-crtsh.txt | rev | cut -d "."  -f 1,2,3 | sort -u | rev | tee -a ./$1-temp.txt
+        cat rawdata/$1-certspotter.txt | rev | cut -d "."  -f 1,2,3 | sort -u | rev | tee -a ./$1-temp.txt
         domain=$1
         #jq -r '.data.certificateDetail[].commonName,.data.certificateDetail[].subjectAlternativeNames[]' rawdata/digicert.json | sed 's/"//g' | grep -w "$domain$" | rev | cut -d "."  -f 1,2,3 | sort -u | rev | tee -a ./$1-temp.txt
         cat $1-temp.txt | sort -u | tee ./data/$1-$(date "+%Y.%m.%d-%H.%M").txt; rm $1-temp.txt
