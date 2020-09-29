@@ -3,7 +3,7 @@
 # twitch.tv/nahamsec
 # Thank you to nukedx and dmfroberson for helping debug/improve
 
-digi()
+digi() #The Digicert CT Search has been discontinued. Calls to this function have been disabled.
 {
         RES=`curl "https://ssltools.digicert.com/chainTester/webservice/ctsearch/search?keyword=$1" -s -k`
         echo $RES > rawdata/digicert.json
