@@ -18,8 +18,7 @@ digi()
 certdata(){
         #give it patterns to look for within crt.sh for example %api%.site.com
         declare -a arr=("api" "corp" "dev" "uat" "test" "stage" "sandbox" "prod" "internal")
-                crtsh1=$(curl -s  "https://crt.sh/?q=$1&output=json" | jq -r '.[].name_value' | sed 's/\*\.//g' | sort -u | tee -a rawdata/crtsh.txt || '')
-        	echo "$crtsh1"
+                crtsh1=$(curl -s  "https://crt.sh/?q=$1&output=json" | jq -r '.[].name_value' | sed 's/\*\.//g' | sort -u | tee -a rawdata/crtsh1.txt || '')
 	for i in "${arr[@]}"; do
                 #get a list of domains based on our patterns in the array
                 sub="${i}.$1"
@@ -32,7 +31,8 @@ certdata(){
                 certspotter=$(curl -s "https://api.certspotter.com/v1/issuances?domain=$1&expand=dns_names&expand=issuer&include_subdomains=true" | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | tee rawdata/certspotter.txt)
                 #get a list of domains from digicert
                 #digicert=$(digi $1)
-                #echo "$crtsh"
+                echo "$crtsh1"
+		echo "$crtsh"
                 echo "$certspotter"
                 #echo "$digicert"
 }
@@ -42,6 +42,7 @@ certdata(){
 rootdomains() { #this creates a list of all unique root sub domains
         clear
         echo "working on data"
+	cat rawdata/crtsh1.txt | rev | cut -d "."  -f 1,2,3 | sort -u | rev | tee ./$1-temp.txt
         cat rawdata/crtsh.txt | rev | cut -d "."  -f 1,2,3 | sort -u | rev | tee ./$1-temp.txt
         cat rawdata/certspotter.txt | rev | cut -d "."  -f 1,2,3 | sort -u | rev | tee -a ./$1-temp.txt
         domain=$1
