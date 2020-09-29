@@ -3,23 +3,11 @@
 # twitch.tv/nahamsec
 # Thank you to nukedx and dmfroberson for helping debug/improve
 
-digi() #The Digicert CT Search has been discontinued. Calls to this function have been disabled.
-{
-        RES=`curl "https://ssltools.digicert.com/chainTester/webservice/ctsearch/search?keyword=$1" -s -k`
-        echo $RES > rawdata/digicert.json
-        # retry if the 404 shows up, fixes https://github.com/nahamsec/crtndstry/issues/3
-        if [[ $RES =~ "DOCTYPE" ]]; then
-                sleep 0.5
-                RES=`digi $1`
-        fi
-        echo $RES | jq -r '.data.certificateDetail[].commonName,.data.certificateDetail[].subjectAlternativeNames[]' | grep -w "$1\$" | grep -v '*' | grep -v "^$1\$" | sort -u || '' # || '' handles empty responses
-}
-
-
 certdata(){
+	#This should cover the entire domain:
 	crtsh1=$(curl -s  "https://crt.sh/?q=$1&output=json" | jq -r '.[].name_value' | sed 's/\*\.//g' | sort -u | tee -a rawdata/crtsh1.txt || '')
         echo "$crtsh1"
-        #give it patterns to look for within crt.sh for example %api%.site.com
+        #give it patterns to look for within crt.sh for example %api%.site.com - This may be redundant at this point but we'll leave it.
         declare -a arr=("api" "corp" "dev" "uat" "test" "stage" "sandbox" "prod" "internal")
         for i in "${arr[@]}"; do
                 #get a list of domains based on our patterns in the array
@@ -31,12 +19,9 @@ certdata(){
                 #get a list of domains from certspotter
                 #certspotter=$(curl -s "https://api.certspotter.com/v1/issuances?domain=$1&expand=dns_names&expand=issuer&include_subdomains=true" | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep -w $1\$ | tee rawdata/certspotter.txt)
                 certspotter=$(curl -s "https://api.certspotter.com/v1/issuances?domain=$1&expand=dns_names&expand=issuer&include_subdomains=true" | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | tee rawdata/certspotter.txt)
-                #get a list of domains from digicert
-                #digicert=$(digi $1)
                 echo "$crtsh1"
                 echo "$crtsh"
                 echo "$certspotter"
-                #echo "$digicert"
 }
 
 
